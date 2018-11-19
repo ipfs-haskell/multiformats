@@ -1,3 +1,4 @@
+-- Use signatures available in backpack and paramatrize over monad
 module MultiHash
   ( HashFuncType(..)
   , DigestLength(..)
