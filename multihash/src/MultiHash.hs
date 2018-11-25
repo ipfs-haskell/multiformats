@@ -1,21 +1,26 @@
--- Use signatures available in backpack and paramatrize over monad
+{-# LANGUAGE FlexibleInstances #-}
+
 module MultiHash
   ( HashFuncType(..)
   , DigestLength(..)
   , DigestValue(..)
   , multiHash
+  , MultiHash(..)
   ) where
 
+import Control.Monad.Fail as MF
+import Data.ByteString.Char8 as BS
 import Data.Hex
+import Data.Char (intToDigit)
 
 newtype HashFuncType =
-  HashFuncType String
+  HashFuncType BS.ByteString
 
 newtype DigestLength =
   DigestLength Int
 
 newtype DigestValue =
-  DigestValue String
+  DigestValue BS.ByteString
 
 newtype MultiHashFormat =
   MultiHashFormat (HashFuncType, DigestLength, DigestValue)
@@ -25,19 +30,25 @@ class (Eq a, Show a) =>
   where
   hashCode :: a -> HashFuncType
   digestLength :: a -> DigestLength
+  digest :: a -> DigestValue
 
-multiHash :: (MultiHash t) => t -> Maybe DigestLength -> Maybe MultiHashFormat
-multiHash h Nothing =
-  Just $ MultiHashFormat (hashCode h, digestLength h, DigestValue $ show h)
-multiHash h (Just l)
-  | i <= j = Just $ MultiHashFormat (hashCode h, l, DigestValue $ show h)
-  | otherwise = Nothing
-  where
-    DigestLength i = l
-    DigestLength j = digestLength h
+multiHash ::
+     (MultiHash t, MonadFail m) => t -> m DigestLength -> m MultiHashFormat
+multiHash h ml = do
+  l <- ml
+  let DigestLength i = l
+  let DigestLength j = digestLength h
+  if i <= j
+    then return $ MultiHashFormat (hashCode h, l, digest h)
+    else MF.fail "i > j"
+
+-- How to handle this error?
+oneByteIntToHex i
+	| i < 16 = ['0', intToDigit i]
+	| otherwise = [intToDigit $ quot i 16, intToDigit $ rem i 16]
 
 instance Show MultiHashFormat where
   show (MultiHashFormat (HashFuncType f, DigestLength l, DigestValue v)) =
-    f ++ hexaL ++ take l v
+    show $ BS.append f $ BS.append hexaL $ BS.take (2 * l) v
     where
-      hexaL = hex $ show l
+      hexaL = BS.pack $ oneByteIntToHex l

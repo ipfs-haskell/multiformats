@@ -1,0 +1,7 @@
+Test suite multihash-testsuite: RUNNING...
+"130233c8"
+"130333c833"
+"130a33c833d7e5a73ad1b66d"
+"131233c833d7e5a73ad1b66d4eb4c9edfb8599cf"
+Test suite multihash-testsuite: PASS
+Test suite logged to: /mnt/c/Users/mota/Desktop/LinuxWorkStation/Prog/multiformats/dist-newstyle/build/x86_64-linux/ghc-8.0.2/multiformats-0.1.0.0/t/multihash-testsuite/test/multiformats-0.1.0.0-multihash-testsuite.log
