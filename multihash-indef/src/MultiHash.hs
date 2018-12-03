@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 
+
 module MultiHash
   ( HashFuncType(..)
   , DigestLength(..)
@@ -47,6 +48,6 @@ oneByteIntToHex i
 
 instance Show MultiHashFormat where
   show (MultiHashFormat (HashFuncType f, DigestLength l, DigestValue v)) =
-    show $ Str.append f $ Str.append hexaL $ Str.take l v
+    show $ Str.append f $ Str.append hexaL $ Str.takeByte l v
     where
       hexaL = Str.pack $ oneByteIntToHex l
