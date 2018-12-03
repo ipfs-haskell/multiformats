@@ -1,0 +1,7 @@
+signature Str where
+
+data Str
+instance Eq Str
+append :: Str -> Str -> Str
+take :: Int -> Str -> Str
+pack :: String -> Str

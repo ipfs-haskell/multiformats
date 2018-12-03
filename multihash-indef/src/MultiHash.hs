@@ -1,7 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-
-
 module MultiHash
   ( HashFuncType(..)
   , DigestLength(..)
@@ -11,18 +9,18 @@ module MultiHash
   ) where
 
 import Control.Monad.Fail as MF
-import Data.ByteString.Char8 as BS
+import qualified Str
 import Data.Char (intToDigit)
 import Data.Hex
 
 newtype HashFuncType =
-  HashFuncType BS.ByteString
+  HashFuncType Str.Str
 
 newtype DigestLength =
   DigestLength Int
 
 newtype DigestValue =
-  DigestValue BS.ByteString
+  DigestValue Str.Str
 
 newtype MultiHashFormat =
   MultiHashFormat (HashFuncType, DigestLength, DigestValue)
@@ -39,7 +37,7 @@ multiHash h l = do
   let DigestLength i = l
   let DigestLength j = digestLength h
   if i <= j
-    then return $ MultiHashFormat (hashCode h, l, DigestValue . BS.pack . show $ h)
+    then return $ MultiHashFormat (hashCode h, l, DigestValue . Str.pack . show $ h)
     else MF.fail "i > j"
 
 -- How to handle this error?
@@ -49,6 +47,6 @@ oneByteIntToHex i
 
 instance Show MultiHashFormat where
   show (MultiHashFormat (HashFuncType f, DigestLength l, DigestValue v)) =
-    show $ BS.append f $ BS.append hexaL $ BS.take (2 * l) v
+    show $ Str.append f $ Str.append hexaL $ Str.take l v
     where
-      hexaL = BS.pack $ oneByteIntToHex l
+      hexaL = Str.pack $ oneByteIntToHex l

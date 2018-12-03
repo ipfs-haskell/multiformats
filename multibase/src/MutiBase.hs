@@ -1,7 +1,5 @@
 -- Use signatures available in backpack and paramatrize over monad
-module MultiBase
-  ( multibase
-  ) where
+module MultiBase where
 
 class MultiBase a where
   basePrefix :: a -> String
