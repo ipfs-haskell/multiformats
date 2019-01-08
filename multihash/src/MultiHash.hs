@@ -10,45 +10,27 @@ module MultiHash
   , MultiHash(..)
   ) where
 
-import Control.Monad.Fail as MF
-import Data.ByteString.Char8 as BS
-import Data.Char (intToDigit)
-import Data.Hex
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Builder as BB
+import qualified Data.ByteString.Lazy as BL
 
-newtype HashFuncType =
-  HashFuncType BS.ByteString
-
-newtype DigestLength =
-  DigestLength Int
-
-newtype DigestValue =
-  DigestValue BS.ByteString
-
-newtype MultiHashFormat =
-  MultiHashFormat (HashFuncType, DigestLength, DigestValue)
+type AlgorithmCode = Int 
+type Length = Int
+type Digest = BS.ByteString
 
 class (Eq a, Show a) =>
       MultiHash a
   where
-  hashCode :: a -> HashFuncType
-  digestLength :: a -> DigestLength
+  algorithmCode :: a -> AlgorithmCode 
+  digest :: a -> Digest
 
-multiHash ::
-     (MultiHash t, MonadFail m) => t -> DigestLength -> m MultiHashFormat
-multiHash h l = do
-  let DigestLength i = l
-  let DigestLength j = digestLength h
-  if i <= j
-    then return $ MultiHashFormat (hashCode h, l, DigestValue . BS.pack . show $ h)
-    else MF.fail "i > j"
+hashBuilder :: (MultiHash a) => a -> BB.Builder
+hashBuilder a = theCodeB <> theLengthB <> theDigestB
+  where
+  theCodeB = BB.word8 . fromIntegral $ algorithmCode a
+  theDigest = digest a
+  theLengthB = BB.word8 . fromIntegral $ BS.length theDigest
+  theDigestB = BB.byteString theDigest
 
--- How to handle this error?
-oneByteIntToHex i
-  | i < 16 = ['0', intToDigit i]
-  | otherwise = [intToDigit $ quot i 16, intToDigit $ rem i 16]
-
-instance Show MultiHashFormat where
-  show (MultiHashFormat (HashFuncType f, DigestLength l, DigestValue v)) =
-    show $ BS.append f $ BS.append hexaL $ BS.take (2 * l) v
-    where
-      hexaL = BS.pack $ oneByteIntToHex l
+hash :: (MultiHash a) => a -> BL.ByteString
+hash = toLazyByteString . hashBuilder
