@@ -1,30 +1,29 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-
-
-module MultiHash
-  ( HashFuncType(..)
-  , DigestLength(..)
-  , DigestValue(..)
-  , multiHash
-  , MultiHash(..)
-  ) where
+module MultiHash where
 
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Builder as BB
 import qualified Data.ByteString.Lazy as BL
+import Data.Monoid ((<>))
+
+data MultiHash = MultiHash 
+  { algorithmCode :: AlgorithmCode
+  , length :: Length
+  , digest :: Digest
+  }
 
 type AlgorithmCode = Int 
 type Length = Int
 type Digest = BS.ByteString
 
 class (Eq a, Show a) =>
-      MultiHash a
+      MultiHashable a
   where
   algorithmCode :: a -> AlgorithmCode 
   digest :: a -> Digest
 
-hashBuilder :: (MultiHash a) => a -> BB.Builder
+hashBuilder :: (MultiHashable a) => a -> BB.Builder
 hashBuilder a = theCodeB <> theLengthB <> theDigestB
   where
   theCodeB = BB.word8 . fromIntegral $ algorithmCode a
@@ -32,5 +31,12 @@ hashBuilder a = theCodeB <> theLengthB <> theDigestB
   theLengthB = BB.word8 . fromIntegral $ BS.length theDigest
   theDigestB = BB.byteString theDigest
 
-hash :: (MultiHash a) => a -> BL.ByteString
-hash = toLazyByteString . hashBuilder
+encode :: (MultiHashable a) => a -> BL.ByteString
+encode = BB.toLazyByteString . hashBuilder
+
+decode :: BL.ByteString -> MultiHash 
+decode b = MultiHash theAlgorithmCode theLength theDigest
+  where
+  theAlgorithmCode = fromIntegral $ take 1 b 
+  theLength = fromIntegral $ take 1 $ drop 1 b
+  theDigest = drop 2 b
