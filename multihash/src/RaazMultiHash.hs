@@ -1,13 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module RaazMultiHash
-  ( module MultiHash
-  , module Raaz.Hash.Blake2
-  , module Raaz.Hash.Sha224
-  , module Raaz.Hash.Sha256
-  , module Raaz.Hash.Sha384
-  , module Raaz.Hash.Sha512
-  ) where
+module RaazMultiHash where
 
 import Data.ByteString.Char8 as BS
 import MultiHash
@@ -17,22 +10,22 @@ import Raaz.Hash.Sha256
 import Raaz.Hash.Sha384
 import Raaz.Hash.Sha512
 
-instance MultiHash BLAKE2b where
-  hashCode _ = HashFuncType $ BS.pack "B207"
-  digestLength _ = DigestLength 64
+instance MultiHashable BLAKE2b where
+  algorithmCode _ = 0x40
+  digest = pack.show
 
-instance MultiHash SHA256 where
-  hashCode _ = HashFuncType $ BS.pack "13"
-  digestLength _ = DigestLength 32
+instance MultiHashable SHA256 where
+  algorithmCode _ = 0x12
+  digest = pack.show
 
-instance MultiHash SHA224 where
-  hashCode _ = HashFuncType $ BS.pack "17"
-  digestLength _ = DigestLength 28
+instance MultiHashable SHA224 where
+  algorithmCode _ = 0x17
+  digest = pack.show
 
-instance MultiHash SHA384 where
-  hashCode _ = HashFuncType $ BS.pack "15"
-  digestLength _ = DigestLength 48
+instance MultiHashable SHA384 where
+  algorithmCode _ = 0x15
+  digest = pack.show
 
-instance MultiHash SHA512 where
-  hashCode _ = HashFuncType $ BS.pack "12"
-  digestLength _ = DigestLength 64
+instance MultiHashable SHA512 where
+  algorithmCode _ = 0x13
+  digest = pack.show
