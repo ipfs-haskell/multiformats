@@ -7,11 +7,7 @@ import qualified Data.ByteString.Builder as BB
 import qualified Data.ByteString.Lazy as BL
 import Data.Monoid ((<>))
 
-data MultiHash = MultiHash 
-  { algorithmCode :: AlgorithmCode
-  , length :: Length
-  , digest :: Digest
-  }
+data MultiHash = MultiHash AlgorithmCode Length Digest
 
 type AlgorithmCode = Int 
 type Length = Int
@@ -37,6 +33,7 @@ encode = BB.toLazyByteString . hashBuilder
 decode :: BL.ByteString -> MultiHash 
 decode b = MultiHash theAlgorithmCode theLength theDigest
   where
-  theAlgorithmCode = fromIntegral $ take 1 b 
-  theLength = fromIntegral $ take 1 $ drop 1 b
-  theDigest = drop 2 b
+  bStrict = BL.toStrict b
+  theAlgorithmCode = fromIntegral $ BS.head bStrict 
+  theLength = fromIntegral $ BS.head $ BS.tail bStrict
+  theDigest = BS.tail $ BS.tail bStrict
