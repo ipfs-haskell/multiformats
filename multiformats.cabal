@@ -12,13 +12,21 @@ maintainer: adithya.nocreed@gmail.com
 build-type: Simple
 extra-source-files: ChangeLog.md
 
+library multibase
+  exposed-modules: Multibase
+                 , Standard
+  build-depends: word8 <=0.1.2
+               , bytestring >=0.9 && <0.11
+  hs-source-dirs: multibase/src
+  default-language: Haskell2010
+
+
 library multihash
-  exposed-modules: MultiHash
-                 , RaazMultiHash
+  exposed-modules: Multihash
+                 , RaazMultihash
   build-depends: base >=4.6 && <4.11
                , bytestring >=0.9 && <0.11
                , raaz
   hs-source-dirs: multihash/src
   default-language: Haskell2010
-
 

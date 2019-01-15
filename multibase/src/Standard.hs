@@ -1,33 +1,14 @@
 module Standard where
 
-import MultiBase
+import Multibase
+import qualified ByteString as BS
+import qualified Data.Word as W8
+data Base = Base2 | Base16
 
-newtype Base2 =
-  Base2 String
+fromBaseCode :: Base -> W8.Word8
+fromBaseCode Base2 = W8._2
+fromBaseCode Base16 = W8._F
 
-newtype Base10 =
-  Base10 String
-
-newtype Base16 =
-  Base16 String
-
-instance MultiBase Base2 where
-  basePrefix (Base2 _) = "0"
-  prefixed b@(Base2 str) = basePrefix b ++ str
-
-instance Show Base2 where
-  show = prefixed
-
-instance MultiBase Base10 where
-  basePrefix (Base10 _) = "9"
-  prefixed b@(Base10 str) = basePrefix b ++ str
-
-instance Show Base10 where
-  show = prefixed
-
-instance MultiBase Base16 where
-  basePrefix (Base16 _) = "f"
-  prefixed b@(Base16 str) = basePrefix b ++ str
-
-instance Show Base16 where
-  show = prefixed
+toBaseCode :: W8.Word8 -> Base
+toBaseCode W8._2 = Base2
+toBaseCode W8._F = Base16
