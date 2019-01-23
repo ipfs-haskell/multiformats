@@ -1,16 +1,16 @@
 module Multibase where
 
 import qualified Data.ByteString as BS
-import Data.Word8 (Word8)
 
-data MutiBaseFormat = MultibaseFormat BaseCode Value
-type BaseCode = Word8
+data MultibaseFormat a = MultibaseFormat a Value
 type Value = BS.ByteString
 
-encode = BS.cons 
+createMultibaseFormat :: (Multibaseable a) => a -> Value -> MultibaseFormat a
+createMultibaseFormat a v = MultibaseFormat a v
 
-decode b = MultibaseFormat w r
-        where
-          w = BS.head b
-          r = BS.tail b
+class Multibaseable a where
+  baseCode :: a -> BS.ByteString
 
+encode (MultibaseFormat a v) = BS.append (baseCode a) v
+
+decode e = MultibaseFormat (BS.head e) (BS.tail e)
